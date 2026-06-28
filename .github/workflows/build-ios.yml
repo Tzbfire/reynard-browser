@@ -9,10 +9,20 @@ permissions:
 jobs:
   build:
     name: Build Reynard IPA
-    runs-on: macos-latest
+    runs-on: macos-15
     timeout-minutes: 360
 
     steps:
+      - name: Select Xcode 26
+        run: |
+          set -euxo pipefail
+          XCODE_PATH="$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -n 1)"
+          test -n "$XCODE_PATH"
+          sudo xcode-select -s "$XCODE_PATH/Contents/Developer"
+          echo "Selected $XCODE_PATH"
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-path
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
