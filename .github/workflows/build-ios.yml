@@ -1,0 +1,102 @@
+name: Build IPA
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build Reynard IPA
+    runs-on: macos-latest
+    timeout-minutes: 360
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: false
+
+      - name: Show toolchain versions
+        run: |
+          set -euxo pipefail
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-path
+          python3 --version
+          git --version
+
+      - name: Install build dependencies
+        run: |
+          set -euxo pipefail
+          brew update
+          brew install ldid
+
+      - name: Set up Rust for iOS
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios
+
+      - name: Download Gecko source
+        run: |
+          set -euxo pipefail
+          chmod +x tools/development/*.sh tools/release/*.sh
+          tools/development/update-gecko.sh
+
+      - name: Apply Gecko patches
+        run: |
+          set -euxo pipefail
+          tools/development/apply-patches.sh
+
+      - name: Build idevice support library
+        run: |
+          set -euxo pipefail
+          tools/development/build-idevice.sh
+
+      - name: Build Gecko engine
+        run: |
+          set -euxo pipefail
+          tools/development/build-gecko.sh
+
+      - name: Archive Reynard app without Apple signing
+        run: |
+          set -euxo pipefail
+          DIST_DIR="$PWD/dist"
+          PROJECT_PATH="$PWD/browser/Reynard.xcodeproj"
+          XCCONFIG_PATH="$PWD/browser/Configuration/Reynard.xcconfig"
+          rm -rf "$DIST_DIR"
+          mkdir -p "$DIST_DIR"
+          cp "$XCCONFIG_PATH" "$DIST_DIR/Reynard.xcconfig"
+          BUILD_SHA="$(git rev-parse --short HEAD)"
+          sed -i '' "s/CURRENT_BUILD = .*/CURRENT_BUILD = $BUILD_SHA/" "$DIST_DIR/Reynard.xcconfig"
+          xcodebuild archive \
+            -scheme "Reynard" \
+            -archivePath "$DIST_DIR/Reynard.xcarchive" \
+            -project "$PROJECT_PATH" \
+            -sdk iphoneos \
+            -arch arm64 \
+            -configuration Release \
+            -xcconfig "$DIST_DIR/Reynard.xcconfig" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_STYLE=Manual \
+            DEVELOPMENT_TEAM="" \
+            PROVISIONING_PROFILE_SPECIFIER=""
+
+      - name: Create IPA packages
+        run: |
+          set -euxo pipefail
+          tools/release/create-ipa.sh
+          ls -lh dist
+
+      - name: Upload IPA artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Reynard-${{ github.sha }}
+          path: |
+            dist/Reynard.ipa
+            dist/Reynard-TrollStore.tipa
+            dist/Reynard-Jailbroken.ipa
+          if-no-files-found: error
