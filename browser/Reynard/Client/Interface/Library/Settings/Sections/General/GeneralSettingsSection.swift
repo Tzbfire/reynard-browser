@@ -12,6 +12,7 @@ struct GeneralSettingsSection {
         case addons
         case browsing
         case search
+        case language
         case appearance
         case compatibility
     }
@@ -27,15 +28,17 @@ struct GeneralSettingsSection {
         
         switch Row.allCases[index] {
         case .addons:
-            return SettingsViewUtils.disclosureCell(title: "Add-ons")
+            return SettingsViewUtils.disclosureCell(title: L10n.string("Add-ons"))
         case .browsing:
-            return SettingsViewUtils.disclosureCell(title: "Browsing")
+            return SettingsViewUtils.disclosureCell(title: L10n.string("Browsing"))
         case .search:
-            return SettingsViewUtils.disclosureCell(title: "Search")
+            return SettingsViewUtils.disclosureCell(title: L10n.string("Search"))
+        case .language:
+            return SettingsViewUtils.disclosureCell(title: L10n.string("Language"))
         case .appearance:
-            return SettingsViewUtils.disclosureCell(title: "Appearance")
+            return SettingsViewUtils.disclosureCell(title: L10n.string("Appearance"))
         case .compatibility:
-            return SettingsViewUtils.disclosureCell(title: "Compatibility")
+            return SettingsViewUtils.disclosureCell(title: L10n.string("Compatibility"))
         }
     }
     
@@ -52,6 +55,8 @@ struct GeneralSettingsSection {
             destination = BrowsingPreferencesViewController()
         case .search:
             destination = SearchPreferencesViewController()
+        case .language:
+            destination = LanguagePreferencesViewController()
         case .appearance:
             destination = AppearancePreferencesViewController()
         case .compatibility:

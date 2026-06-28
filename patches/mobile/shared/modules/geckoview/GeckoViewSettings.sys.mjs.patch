@@ -1,0 +1,61 @@
+diff --git a/mobile/shared/modules/geckoview/GeckoViewSettings.sys.mjs b/mobile/shared/modules/geckoview/GeckoViewSettings.sys.mjs
+index 4d110126fc43..f22b8cb3e2e0 100644
+--- a/mobile/shared/modules/geckoview/GeckoViewSettings.sys.mjs
++++ b/mobile/shared/modules/geckoview/GeckoViewSettings.sys.mjs
+@@ -31,6 +31,8 @@ export class GeckoViewSettings extends GeckoViewModule {
+     this._userAgentMode = USER_AGENT_MODE_MOBILE;
+     this._userAgentOverride = null;
+     this._sessionContextId = null;
++    this._acceptLanguages = null;
++    this._requestedLocales = null;
+ 
+     this.registerListener(["GeckoView:GetUserAgent"]);
+   }
+@@ -72,6 +74,8 @@ export class GeckoViewSettings extends GeckoViewModule {
+     this.userAgentMode = settings.userAgentMode;
+     this.userAgentOverride = settings.userAgentOverride;
+     this.sessionContextId = settings.sessionContextId;
++    this.acceptLanguages = settings.acceptLanguages;
++    this.requestedLocales = settings.requestedLocales;
+     this.suspendMediaWhenInactive = settings.suspendMediaWhenInactive;
+     this.allowJavascript = settings.allowJavascript;
+     this.viewportMode = settings.viewportMode;
+@@ -149,6 +153,38 @@ export class GeckoViewSettings extends GeckoViewModule {
+     this.browsingContext.customUserAgent = this.customUserAgent;
+   }
+ 
++  get acceptLanguages() {
++    return this._acceptLanguages;
++  }
++
++  set acceptLanguages(aAcceptLanguages) {
++    if (aAcceptLanguages === this.acceptLanguages) {
++      return;
++    }
++    this._acceptLanguages = aAcceptLanguages;
++    if (aAcceptLanguages) {
++      Services.prefs.setCharPref("intl.accept_languages", aAcceptLanguages);
++    } else if (Services.prefs.prefHasUserValue("intl.accept_languages")) {
++      Services.prefs.clearUserPref("intl.accept_languages");
++    }
++  }
++
++  get requestedLocales() {
++    return this._requestedLocales;
++  }
++
++  set requestedLocales(aRequestedLocales) {
++    if (aRequestedLocales === this.requestedLocales) {
++      return;
++    }
++    this._requestedLocales = aRequestedLocales;
++    if (aRequestedLocales) {
++      Services.prefs.setCharPref("intl.locale.requested", aRequestedLocales);
++    } else if (Services.prefs.prefHasUserValue("intl.locale.requested")) {
++      Services.prefs.clearUserPref("intl.locale.requested");
++    }
++  }
++
+   get suspendMediaWhenInactive() {
+     return this.browser.suspendMediaWhenInactive;
+   }

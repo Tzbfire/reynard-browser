@@ -36,7 +36,9 @@ final class SessionSettingsManager {
         return GeckoSessionSettings(
             userAgentOverride: userAgent.override,
             userAgentMode: mode,
-            viewportMode: mode
+            viewportMode: mode,
+            acceptLanguages: BrowserLanguagePreferences.geckoAcceptLanguages,
+            requestedLocales: BrowserLanguagePreferences.geckoLocaleList
         )
     }
     

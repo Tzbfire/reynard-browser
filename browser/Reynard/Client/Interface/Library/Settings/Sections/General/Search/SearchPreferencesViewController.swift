@@ -22,7 +22,7 @@ final class SearchPreferencesViewController: SettingsTableViewController {
     
     init() {
         super.init(style: .insetGrouped)
-        title = "Search"
+        title = L10n.string("Search")
     }
     
     required init?(coder: NSCoder) {
@@ -65,7 +65,7 @@ final class SearchPreferencesViewController: SettingsTableViewController {
         switch Row.allCases[indexPath.row] {
         case .searchEngine:
             let cell = UITableViewCell(style: .value1, reuseIdentifier: nil)
-            cell.textLabel?.text = "Search Engine"
+            cell.textLabel?.text = L10n.string("Search Engine")
             cell.detailTextLabel?.text = Prefs.SearchSettings.searchEngine.displayName
             cell.detailTextLabel?.textColor = .secondaryLabel
             cell.accessoryType = .disclosureIndicator

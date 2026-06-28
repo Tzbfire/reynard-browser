@@ -14,7 +14,7 @@ final class AppearancePreferencesViewController: SettingsTableViewController {
         var text: SettingsSectionText {
             switch self {
             case .tabs:
-                return SettingsSectionText(headerTitle: "Tabs")
+                return SettingsSectionText(headerTitle: L10n.string("Tabs"))
             }
         }
     }
@@ -32,7 +32,7 @@ final class AppearancePreferencesViewController: SettingsTableViewController {
     
     init() {
         super.init(style: .insetGrouped)
-        title = "Appearance"
+        title = L10n.string("Appearance")
     }
     
     required init?(coder: NSCoder) {
@@ -85,7 +85,7 @@ final class AppearancePreferencesViewController: SettingsTableViewController {
             return cell
         case .landscapeTabBar:
             let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
-            cell.textLabel?.text = "Landscape Tab Bar"
+            cell.textLabel?.text = L10n.string("Landscape Tab Bar")
             cell.selectionStyle = .none
             cell.accessoryView = landscapeTabBarSwitch
             return cell

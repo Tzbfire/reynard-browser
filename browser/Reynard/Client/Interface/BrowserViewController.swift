@@ -555,6 +555,12 @@ final class BrowserViewController: UIViewController {
         )
         NotificationCenter.default.addObserver(
             self,
+            selector: #selector(languagePreferencesDidChange),
+            name: .languagePreferencesDidChange,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
             selector: #selector(applyUpdateMenuButtonBadge),
             name: .appUpdateAvailable,
             object: nil
@@ -621,7 +627,7 @@ final class BrowserViewController: UIViewController {
             self.view.layoutIfNeeded()
         }
     }
-    
+
     @objc func addressBarPositionDidChange() {
         updateBrowserLayout(animated: true)
     }
@@ -630,6 +636,10 @@ final class BrowserViewController: UIViewController {
         updateBrowserLayout(animated: true)
     }
     
+    @objc func languagePreferencesDidChange() {
+        tabManager.updateLanguagePreferences()
+    }
+
     @objc func applyUpdateMenuButtonBadge() {
         browserChrome.setMenuButtonIndicatesUpdate(BrowserUpdates.shared.hasUpdate)
     }

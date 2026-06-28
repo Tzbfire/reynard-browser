@@ -2,10 +2,15 @@ diff --git a/mobile/ios/app/mobile.js b/mobile/ios/app/mobile.js
 index e835b1c33d86..4a2bf184f651 100644
 --- a/mobile/ios/app/mobile.js
 +++ b/mobile/ios/app/mobile.js
-@@ -5,6 +5,36 @@
+@@ -5,6 +5,41 @@
  
  pref("toolkit.defaultChromeURI", "chrome://geckoview/content/geckoview.xhtml");
  
++// Prefer Chinese content by default for multilingual websites. The app-level
++// language setting can update these values at runtime.
++pref("intl.accept_languages", "zh-CN, zh, en-US, en");
++pref("intl.locale.requested", "zh-CN");
++
 +// Firefox add-on support, copied from Android's.
 +pref("extensions.isembedded", true);
 +pref("extensions.autoDisableScopes", 15);

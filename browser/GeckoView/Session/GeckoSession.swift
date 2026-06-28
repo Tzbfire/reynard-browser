@@ -17,17 +17,29 @@ public struct GeckoSessionSettings: Equatable {
     public static let `default` = GeckoSessionSettings(
         userAgentOverride: nil,
         userAgentMode: 0,
-        viewportMode: 0
+        viewportMode: 0,
+        acceptLanguages: nil,
+        requestedLocales: nil
     )
     
     public let userAgentOverride: String?
     public let userAgentMode: Int
     public let viewportMode: Int
+    public let acceptLanguages: String?
+    public let requestedLocales: String?
     
-    public init(userAgentOverride: String?, userAgentMode: Int, viewportMode: Int) {
+    public init(
+        userAgentOverride: String?,
+        userAgentMode: Int,
+        viewportMode: Int,
+        acceptLanguages: String? = nil,
+        requestedLocales: String? = nil
+    ) {
         self.userAgentOverride = userAgentOverride
         self.userAgentMode = userAgentMode
         self.viewportMode = viewportMode
+        self.acceptLanguages = acceptLanguages
+        self.requestedLocales = requestedLocales
     }
 }
 
@@ -55,12 +67,16 @@ public class GeckoSession {
         guard isOpen() else { return }
         
         let uaValue: Any = settings.userAgentOverride ?? NSNull()
+        let acceptLanguagesValue: Any = settings.acceptLanguages ?? NSNull()
+        let requestedLocalesValue: Any = settings.requestedLocales ?? NSNull()
         dispatcher.dispatch(
             type: "GeckoView:UpdateSettings",
             message: [
                 "userAgentOverride": uaValue,
                 "userAgentMode": settings.userAgentMode,
                 "viewportMode": settings.viewportMode,
+                "acceptLanguages": acceptLanguagesValue,
+                "requestedLocales": requestedLocalesValue,
             ])
     }
     
@@ -161,6 +177,8 @@ public class GeckoSession {
             "userAgentMode": settings.userAgentMode,
             "userAgentOverride": settings.userAgentOverride,
             "viewportMode": settings.viewportMode,
+            "acceptLanguages": settings.acceptLanguages,
+            "requestedLocales": settings.requestedLocales,
             "displayMode": 0,
             "suspendMediaWhenInactive": false,
             "allowJavascript": true,

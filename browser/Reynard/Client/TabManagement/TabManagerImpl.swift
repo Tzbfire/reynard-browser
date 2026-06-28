@@ -135,6 +135,16 @@ final class TabManagerImplementation: NSObject, TabManager {
             delegate?.tabManagerDidChangeTabs(self)
         }
     }
+
+    private func currentSettingsURL(for tab: Tab) -> String {
+        return tab.url ?? "about:blank"
+    }
+
+    func updateLanguagePreferences() {
+        for tab in regularTabs + privateTabs {
+            sessionManager.updateSettings(of: tab.session, for: currentSettingsURL(for: tab), tabID: tab.id)
+        }
+    }
     
     // MARK: - Navigation State
     

@@ -34,7 +34,11 @@ final class BrowserPreferences {
             // Search
             key("SearchSettings", "searchEngine"): SearchEngine.google.rawValue,
             key("SearchSettings", "customSearchTemplate"): "",
-            
+
+            // Language
+            key("LanguageSettings", "mode"): LanguagePreferenceMode.simplifiedChinese.rawValue,
+            key("LanguageSettings", "customLanguageTags"): "",
+
             // JIT
             key("JITSettings", "isJITEnabled"): false,
             
@@ -111,6 +115,31 @@ final class BrowserPreferences {
             }
             set {
                 prefs.set(newValue.trimmingCharacters(in: .whitespacesAndNewlines), forSetting: "SearchSettings", key: "customSearchTemplate")
+            }
+        }
+    }
+
+    // MARK: - Language
+    struct LanguageSettings {
+        static var mode: LanguagePreferenceMode {
+            get {
+                let rawValue = prefs.string(forSetting: "LanguageSettings", key: "mode") ?? LanguagePreferenceMode.simplifiedChinese.rawValue
+                return LanguagePreferenceMode(rawValue: rawValue) ?? .simplifiedChinese
+            }
+            set {
+                prefs.set(newValue.rawValue, forSetting: "LanguageSettings", key: "mode")
+                NotificationCenter.default.post(name: .languagePreferencesDidChange, object: nil)
+            }
+        }
+
+        static var customLanguageTags: String {
+            get {
+                return prefs.string(forSetting: "LanguageSettings", key: "customLanguageTags") ?? ""
+            }
+            set {
+                let tags = BrowserLanguagePreferences.languageTags(from: newValue)
+                prefs.set(tags.joined(separator: ","), forSetting: "LanguageSettings", key: "customLanguageTags")
+                NotificationCenter.default.post(name: .languagePreferencesDidChange, object: nil)
             }
         }
     }
