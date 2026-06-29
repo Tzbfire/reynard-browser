@@ -41,7 +41,7 @@ jobs:
         run: |
           set -euxo pipefail
           brew update
-          brew install ldid
+          brew install ldid llvm
 
       - name: Set up Rust for iOS
         uses: dtolnay/rust-toolchain@stable
@@ -65,8 +65,26 @@ jobs:
           tools/development/build-idevice.sh
 
       - name: Build Gecko engine
+        env:
+          PATH: /opt/homebrew/opt/llvm/bin:${{ env.PATH }}
+          CC: /opt/homebrew/opt/llvm/bin/clang
+          CXX: /opt/homebrew/opt/llvm/bin/clang++
+          LD: /opt/homebrew/opt/llvm/bin/ld64.lld
+          LDFLAGS: -fuse-ld=lld
+          RUSTFLAGS: -C linker=/opt/homebrew/opt/llvm/bin/clang -C link-arg=-fuse-ld=lld
         run: |
           set -euxo pipefail
+          export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
+          export CC="/opt/homebrew/opt/llvm/bin/clang"
+          export CXX="/opt/homebrew/opt/llvm/bin/clang++"
+          export LD="/opt/homebrew/opt/llvm/bin/ld64.lld"
+          which clang
+          which clang++
+          which ld64.lld || true
+          which ld.lld || true
+          clang --version
+          ld64.lld --version || true
+          "$CC" --target=aarch64-apple-ios -fuse-ld=lld -Wl,--version || true
           tools/development/build-gecko.sh
 
       - name: Archive Reynard app without Apple signing
