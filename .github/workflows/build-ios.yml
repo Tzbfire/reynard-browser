@@ -19,10 +19,7 @@ jobs:
           # Prefer a stable Xcode 26 toolchain. The newest runner image can also
           # include Release Candidate builds whose linker output may confuse
           # Gecko's configure checks.
-          XCODE_PATH="/Applications/Xcode_26.5.app"
-          if [ ! -d "$XCODE_PATH" ]; then
-            XCODE_PATH="/Applications/Xcode_26.4.1.app"
-          fi
+          XCODE_PATH="/Applications/Xcode_26.4.1.app"
           test -d "$XCODE_PATH"
           sudo xcode-select -s "$XCODE_PATH/Contents/Developer"
           echo "Selected $XCODE_PATH"
