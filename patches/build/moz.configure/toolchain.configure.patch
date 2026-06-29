@@ -1,0 +1,16 @@
+diff --git a/build/moz.configure/toolchain.configure b/build/moz.configure/toolchain.configure
+--- a/build/moz.configure/toolchain.configure
++++ b/build/moz.configure/toolchain.configure
+@@ -1792,7 +1792,11 @@ def select_linker(linker, c_compiler, developer_options, enable_linker):
+             # ensure consistent output.
+             env["LC_ALL"] = "C"
+             retcode, stdout, stderr = get_cmd_output(*cmd, env=env)
+-            if retcode == 1 and "Logging ld64 options" in stderr:
++            if retcode == 1 and (
++                "Logging ld64 options" in stderr
++                or ("PROGRAM:ld" in stdout and "PROJECT:ld" in stdout)
++                or ("PROGRAM:ld" in stderr and "PROJECT:ld" in stderr)
++            ):
+                 kind = "ld64"
+ 
+             elif retcode != 0:
