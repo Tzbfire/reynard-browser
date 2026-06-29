@@ -27,7 +27,8 @@ final class SessionSettingsManager {
         
         return GeckoSessionSettings(
             websiteMode: websiteMode.setting(for: url, tabID: tabID),
-            pageZoom: pageZoom.setting(for: url)
+            pageZoom: pageZoom.setting(for: url),
+            language: .default
         )
     }
     

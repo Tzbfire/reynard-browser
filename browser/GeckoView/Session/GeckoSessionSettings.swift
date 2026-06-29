@@ -42,17 +42,21 @@ public struct PageZoomSetting: Equatable {
 public struct GeckoSessionSettings: Equatable {
     public static let `default` = GeckoSessionSettings(
         websiteMode: .mobile,
-        pageZoom: .default
+        pageZoom: .default,
+        language: .default
     )
     
     public let websiteMode: WebsiteModeSetting
     public let pageZoom: PageZoomSetting
+    public let language: LanguageSetting
     
     public init(
         websiteMode: WebsiteModeSetting,
-        pageZoom: PageZoomSetting
+        pageZoom: PageZoomSetting,
+        language: LanguageSetting
     ) {
         self.websiteMode = websiteMode
         self.pageZoom = pageZoom
+        self.language = language
     }
 }

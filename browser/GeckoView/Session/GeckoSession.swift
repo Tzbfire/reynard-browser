@@ -43,6 +43,8 @@ public class GeckoSession {
                 "userAgentMode": settings.websiteMode.userAgentMode,
                 "viewportMode": settings.websiteMode.viewportMode,
                 "pageZoom": settings.pageZoom.scale,
+                "acceptLanguages": settings.language.acceptLanguages,
+                "requestedLocales": settings.language.requestedLocales,
             ])
     }
     
@@ -145,6 +147,8 @@ public class GeckoSession {
             "userAgentOverride": sessionSettings.websiteMode.userAgentOverride,
             "viewportMode": sessionSettings.websiteMode.viewportMode,
             "pageZoom": sessionSettings.pageZoom.scale,
+            "acceptLanguages": sessionSettings.language.acceptLanguages,
+            "requestedLocales": sessionSettings.language.requestedLocales,
             "displayMode": 0,
             "suspendMediaWhenInactive": false,
             "allowJavascript": true,

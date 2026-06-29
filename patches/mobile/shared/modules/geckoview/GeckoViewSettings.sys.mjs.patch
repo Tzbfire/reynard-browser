@@ -1,19 +1,37 @@
 diff --git a/mobile/shared/modules/geckoview/GeckoViewSettings.sys.mjs b/mobile/shared/modules/geckoview/GeckoViewSettings.sys.mjs
-index 8fb59f0a7f72..1741f2e66e69 100644
+index 8fb59f0a7f72..e9d735f32822 100644
 --- a/mobile/shared/modules/geckoview/GeckoViewSettings.sys.mjs
 +++ b/mobile/shared/modules/geckoview/GeckoViewSettings.sys.mjs
-@@ -83,6 +83,7 @@ export class GeckoViewSettings extends GeckoViewModule {
+@@ -83,6 +83,9 @@ export class GeckoViewSettings extends GeckoViewModule {
      this.suspendMediaWhenInactive = settings.suspendMediaWhenInactive;
      this.allowJavascript = settings.allowJavascript;
      this.viewportMode = settings.viewportMode;
++    this.acceptLanguages = settings.acceptLanguages;
++    this.requestedLocales = settings.requestedLocales;
 +    this.pageZoom = settings.pageZoom;
      this.useTrackingProtection = !!settings.useTrackingProtection;
  
      if (settings.isExtensionPopup) {
-@@ -135,6 +136,14 @@ export class GeckoViewSettings extends GeckoViewModule {
+@@ -135,6 +138,30 @@ export class GeckoViewSettings extends GeckoViewModule {
        aViewportMode == VIEWPORT_MODE_DESKTOP;
    }
  
++  set acceptLanguages(aAcceptLanguages) {
++    if (typeof aAcceptLanguages != "string" || !aAcceptLanguages) {
++      return;
++    }
++
++    Services.prefs.setCharPref("intl.accept_languages", aAcceptLanguages);
++  }
++
++  set requestedLocales(aRequestedLocales) {
++    if (typeof aRequestedLocales != "string" || !aRequestedLocales) {
++      return;
++    }
++
++    Services.prefs.setCharPref("intl.locale.requested", aRequestedLocales);
++  }
++
 +  set pageZoom(aPageZoom) {
 +    if (typeof aPageZoom != "number" || aPageZoom <= 0) {
 +      return;

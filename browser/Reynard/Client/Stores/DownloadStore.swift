@@ -420,6 +420,9 @@ final class DownloadStore: NSObject {
             }
             
             self.applyMirroredHeaders(request.requestHeaders, to: &urlRequest)
+            if urlRequest.value(forHTTPHeaderField: "Accept-Language") == nil {
+                urlRequest.setValue(LanguageSetting.default.httpAcceptLanguage, forHTTPHeaderField: "Accept-Language")
+            }
             
             let task = self.session.downloadTask(with: urlRequest)
             let active = ActiveDownload(
