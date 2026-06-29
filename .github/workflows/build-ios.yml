@@ -44,7 +44,7 @@ jobs:
         run: |
           set -euxo pipefail
           brew update
-          brew install ldid cbindgen llvm wasi-libc
+          brew install ldid cbindgen llvm wasi-libc autoconf pkg-config ninja cmake node nasm yasm
 
       - name: Set up Rust for iOS
         uses: dtolnay/rust-toolchain@stable
@@ -99,9 +99,12 @@ jobs:
           import sys
 
           sysroot = os.environ["WASI_SYSROOT"]
+          include_dir = os.path.join(sysroot, "include", "wasm32-wasi")
           args = sys.argv[1:]
           if not any(arg == "--sysroot" or arg.startswith("--sysroot=") for arg in args):
               args = [f"--sysroot={sysroot}", *args]
+          if os.path.isdir(include_dir) and not any(arg == "-isystem" for arg in args):
+              args = ["-isystem", include_dir, *args]
 
           os.execv("/opt/homebrew/opt/llvm/bin/clang", ["/opt/homebrew/opt/llvm/bin/clang", *args])
           EOF
@@ -112,10 +115,21 @@ jobs:
           export CXX="$WRAPPER_DIR/clang++"
           export HOST_CC="$WRAPPER_DIR/clang"
           export HOST_CXX="$WRAPPER_DIR/clang++"
-          export WASI_SYSROOT="$(brew --prefix wasi-libc)/share/wasi-sysroot"
+          WASI_PREFIX="$(brew --prefix wasi-libc)"
+          for candidate in \
+            "$WASI_PREFIX/share/wasi-sysroot" \
+            "$WASI_PREFIX/share/wasi-libc/sysroot" \
+            "$WASI_PREFIX/lib/wasi-sysroot" \
+            "/opt/homebrew/share/wasi-sysroot"; do
+            if [ -f "$candidate/include/wasm32-wasi/string.h" ] || [ -f "$candidate/include/string.h" ]; then
+              export WASI_SYSROOT="$candidate"
+              break
+            fi
+          done
+          test -n "${WASI_SYSROOT:-}"
+          find "$WASI_SYSROOT" -maxdepth 3 -name string.h -print
           export WASM_CC="$WRAPPER_DIR/wasm-clang"
           export WASM_CXX="$WRAPPER_DIR/wasm-clang++"
-          test -d "$WASI_SYSROOT"
           command -v clang
           command -v ld
           clang --version || true
