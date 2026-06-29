@@ -13,8 +13,8 @@ final class SiteSettingsViewController: UITableViewController {
     
     private enum Section {
         case availability
+        case media
         case permissions
-        case siteActions
     }
     
     private enum Row: CaseIterable {
@@ -75,8 +75,10 @@ final class SiteSettingsViewController: UITableViewController {
         case loaded
     }
     
-    private let permissionRows: [Row] = [
+    private let mediaRows: [Row] = [
         .autoplay,
+    ]
+    private let permissionRows: [Row] = [
         .camera,
         .microphone,
         .location,
@@ -90,7 +92,6 @@ final class SiteSettingsViewController: UITableViewController {
     private let session: GeckoSession
     private var loadState: LoadingState = .loading
     private var loadedGeckoPermissions: [ContentPermission] = []
-    private var didResetSitePermissions = false
     
     private var visibleSections: [Section] {
         var sections: [Section] = []
@@ -99,8 +100,8 @@ final class SiteSettingsViewController: UITableViewController {
             sections.append(.availability)
         }
         
+        sections.append(.media)
         sections.append(.permissions)
-        sections.append(.siteActions)
         return sections
     }
     
@@ -141,10 +142,10 @@ final class SiteSettingsViewController: UITableViewController {
         switch visibleSections[section] {
         case .availability:
             return 2
+        case .media:
+            return loadState == .loaded ? mediaRows.count : 0
         case .permissions:
-            return loadState == .loaded ? permissionRows.count : 0
-        case .siteActions:
-            return loadState == .loaded ? 1 : 0
+            return loadState == .loaded ? permissionRows.count + 1 : 0
         }
     }
     
@@ -156,10 +157,10 @@ final class SiteSettingsViewController: UITableViewController {
         switch visibleSections[section] {
         case .availability:
             return nil
+        case .media:
+            return "Media"
         case .permissions:
             return "Permissions"
-        case .siteActions:
-            return "Actions"
         }
     }
     
@@ -174,10 +175,13 @@ final class SiteSettingsViewController: UITableViewController {
         switch visibleSections[indexPath.section] {
         case .availability:
             return availabilityCell(at: indexPath)
-        case .permissions:
+        case .media:
             return permissionCell(at: indexPath)
-        case .siteActions:
-            return resetSitePermissionsCell()
+        case .permissions:
+            if indexPath.row == permissionRows.count {
+                return resetSitePermissionsCell()
+            }
+            return permissionCell(at: indexPath)
         }
     }
     
@@ -189,10 +193,14 @@ final class SiteSettingsViewController: UITableViewController {
         switch visibleSections[indexPath.section] {
         case .availability:
             handleAvailabilitySelection(at: indexPath)
-        case .permissions:
+        case .media:
             handlePermissionSelection(at: indexPath)
-        case .siteActions:
-            resetSitePermissions()
+        case .permissions:
+            if indexPath.row == permissionRows.count {
+                confirmResetSitePermissions()
+            } else {
+                handlePermissionSelection(at: indexPath)
+            }
         }
         
         tableView.deselectRow(at: indexPath, animated: true)
@@ -259,7 +267,7 @@ final class SiteSettingsViewController: UITableViewController {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: nil)
         cell.textLabel?.text = "Reset Permissions for this Site"
         cell.textLabel?.textColor = .systemRed
-        cell.detailTextLabel?.text = didResetSitePermissions ? "Successfully reset permissions for this site." : nil
+        cell.detailTextLabel?.text = nil
         cell.detailTextLabel?.textColor = .secondaryLabel
         cell.accessoryView = nil
         cell.accessoryType = .none
@@ -273,10 +281,11 @@ final class SiteSettingsViewController: UITableViewController {
         }
         
         switch visibleSections[indexPath.section] {
+        case .media:
+            return mediaRows[safe: indexPath.row]
         case .permissions:
             return permissionRows[safe: indexPath.row]
-        case .siteActions,
-                .availability:
+        case .availability:
             return nil
         }
     }
@@ -379,6 +388,15 @@ final class SiteSettingsViewController: UITableViewController {
     private func setAction(_ action: SitePermissionAction, for permission: SitePermission) {
         SitePermissionStore.shared.updateAction(action, for: permission, host: host, session: session)
         let key = SiteSettingsUtils.geckoKey(for: permission)
+        if action == .askToAllow, permission != .autoplay {
+            PermissionDelegate.removePermission(
+                uri: origin,
+                permissionKey: key,
+                privateMode: session.isPrivateMode
+            )
+            return
+        }
+        
         if permission == .autoplay {
             PermissionDelegate.setPermission(
                 uri: origin,
@@ -398,7 +416,20 @@ final class SiteSettingsViewController: UITableViewController {
         )
     }
     
-    private func resetSitePermissions() {
+    private func confirmResetSitePermissions() {
+        AlertPresenter.show(
+            title: nil,
+            message: "This action will reset permissions for this site. It cannot be undone.",
+            buttons: [
+                AlertPresenter.Button(title: "OK", style: .destructive) { [weak self] in
+                    self?.performResetSitePermissions()
+                },
+                AlertPresenter.Button(title: "Cancel"),
+            ]
+        )
+    }
+    
+    private func performResetSitePermissions() {
         for permission in loadedGeckoPermissions {
             PermissionDelegate.removePermission(permission)
         }
@@ -414,7 +445,6 @@ final class SiteSettingsViewController: UITableViewController {
             SitePermissionStore.shared.removeAction(for: permission, host: host, session: session)
         }
         loadedGeckoPermissions = []
-        didResetSitePermissions = true
         tableView.reloadData()
     }
     

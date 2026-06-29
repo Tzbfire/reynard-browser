@@ -12,7 +12,8 @@ struct GeneralSettingsSection {
         case addons
         case browsing
         case search
-        case language
+        case newTab
+        case homepage
         case appearance
         case compatibility
     }
@@ -28,17 +29,19 @@ struct GeneralSettingsSection {
         
         switch Row.allCases[index] {
         case .addons:
-            return SettingsViewUtils.disclosureCell(title: L10n.string("Add-ons"))
+            return SettingsViewUtils.disclosureCell(title: "Add-ons")
         case .browsing:
-            return SettingsViewUtils.disclosureCell(title: L10n.string("Browsing"))
+            return SettingsViewUtils.disclosureCell(title: "Browsing")
         case .search:
-            return SettingsViewUtils.disclosureCell(title: L10n.string("Search"))
-        case .language:
-            return SettingsViewUtils.disclosureCell(title: L10n.string("Language"))
+            return SettingsViewUtils.disclosureCell(title: "Search")
+        case .newTab:
+            return SettingsViewUtils.disclosureCell(title: "New Tab")
+        case .homepage:
+            return SettingsViewUtils.disclosureCell(title: "Homepage")
         case .appearance:
-            return SettingsViewUtils.disclosureCell(title: L10n.string("Appearance"))
+            return SettingsViewUtils.disclosureCell(title: "Appearance")
         case .compatibility:
-            return SettingsViewUtils.disclosureCell(title: L10n.string("Compatibility"))
+            return SettingsViewUtils.disclosureCell(title: "Compatibility")
         }
     }
     
@@ -55,8 +58,10 @@ struct GeneralSettingsSection {
             destination = BrowsingPreferencesViewController()
         case .search:
             destination = SearchPreferencesViewController()
-        case .language:
-            destination = LanguagePreferencesViewController()
+        case .newTab:
+            destination = NewTabPreferencesViewController()
+        case .homepage:
+            destination = HomepagePreferencesViewController()
         case .appearance:
             destination = AppearancePreferencesViewController()
         case .compatibility:

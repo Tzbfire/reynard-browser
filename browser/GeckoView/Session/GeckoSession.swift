@@ -13,36 +13,6 @@ protocol GeckoSessionHandlerCommon: GeckoEventListenerInternal {
     var enabled: Bool { get }
 }
 
-public struct GeckoSessionSettings: Equatable {
-    public static let `default` = GeckoSessionSettings(
-        userAgentOverride: nil,
-        userAgentMode: 0,
-        viewportMode: 0,
-        acceptLanguages: nil,
-        requestedLocales: nil
-    )
-    
-    public let userAgentOverride: String?
-    public let userAgentMode: Int
-    public let viewportMode: Int
-    public let acceptLanguages: String?
-    public let requestedLocales: String?
-    
-    public init(
-        userAgentOverride: String?,
-        userAgentMode: Int,
-        viewportMode: Int,
-        acceptLanguages: String? = nil,
-        requestedLocales: String? = nil
-    ) {
-        self.userAgentOverride = userAgentOverride
-        self.userAgentMode = userAgentMode
-        self.viewportMode = viewportMode
-        self.acceptLanguages = acceptLanguages
-        self.requestedLocales = requestedLocales
-    }
-}
-
 public enum GeckoSessionLoadFlags {
     public static let none = 0
     public static let replaceHistory = 1 << 6
@@ -66,17 +36,13 @@ public class GeckoSession {
         
         guard isOpen() else { return }
         
-        let uaValue: Any = settings.userAgentOverride ?? NSNull()
-        let acceptLanguagesValue: Any = settings.acceptLanguages ?? NSNull()
-        let requestedLocalesValue: Any = settings.requestedLocales ?? NSNull()
         dispatcher.dispatch(
             type: "GeckoView:UpdateSettings",
             message: [
-                "userAgentOverride": uaValue,
-                "userAgentMode": settings.userAgentMode,
-                "viewportMode": settings.viewportMode,
-                "acceptLanguages": acceptLanguagesValue,
-                "requestedLocales": requestedLocalesValue,
+                "userAgentOverride": settings.websiteMode.userAgentOverride ?? NSNull(),
+                "userAgentMode": settings.websiteMode.userAgentMode,
+                "viewportMode": settings.websiteMode.viewportMode,
+                "pageZoom": settings.pageZoom.scale,
             ])
     }
     
@@ -170,15 +136,15 @@ public class GeckoSession {
         
         id = windowId ?? UUID().uuidString.replacingOccurrences(of: "-", with: "")
         
+        let sessionSettings = settings
         let settings: [String: Any?] = [
             "chromeUri": nil,
             "screenId": 0,
             "useTrackingProtection": false,
-            "userAgentMode": settings.userAgentMode,
-            "userAgentOverride": settings.userAgentOverride,
-            "viewportMode": settings.viewportMode,
-            "acceptLanguages": settings.acceptLanguages,
-            "requestedLocales": settings.requestedLocales,
+            "userAgentMode": sessionSettings.websiteMode.userAgentMode,
+            "userAgentOverride": sessionSettings.websiteMode.userAgentOverride,
+            "viewportMode": sessionSettings.websiteMode.viewportMode,
+            "pageZoom": sessionSettings.pageZoom.scale,
             "displayMode": 0,
             "suspendMediaWhenInactive": false,
             "allowJavascript": true,
