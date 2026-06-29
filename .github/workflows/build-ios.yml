@@ -105,6 +105,8 @@ jobs:
               args = [f"--sysroot={sysroot}", *args]
           if os.path.isdir(include_dir) and not any(arg == "-isystem" for arg in args):
               args = ["-isystem", include_dir, *args]
+          if not any(arg.startswith("-fuse-ld") for arg in args):
+              args = ["-fuse-ld=/opt/homebrew/opt/llvm/bin/wasm-ld", *args]
 
           os.execv("/opt/homebrew/opt/llvm/bin/clang", ["/opt/homebrew/opt/llvm/bin/clang", *args])
           EOF
@@ -131,6 +133,8 @@ jobs:
           export WASM_CC="$WRAPPER_DIR/wasm-clang"
           export WASM_CXX="$WRAPPER_DIR/wasm-clang++"
           command -v clang
+          command -v wasm-ld || true
+          test -x /opt/homebrew/opt/llvm/bin/wasm-ld
           command -v ld
           clang --version || true
           ld -v || true
