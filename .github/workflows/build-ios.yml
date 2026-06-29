@@ -44,12 +44,17 @@ jobs:
         run: |
           set -euxo pipefail
           brew update
-          brew install ldid
+          brew install ldid cbindgen
 
       - name: Set up Rust for iOS
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-apple-ios
+
+      - name: Install Rust build tools
+        run: |
+          set -euxo pipefail
+          cargo install cbindgen --locked
 
       - name: Download Gecko source
         run: |
