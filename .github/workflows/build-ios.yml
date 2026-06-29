@@ -44,7 +44,7 @@ jobs:
         run: |
           set -euxo pipefail
           brew update
-          brew install ldid cbindgen llvm wasi-libc autoconf pkg-config ninja cmake node nasm yasm
+          brew install ldid cbindgen llvm lld wasi-libc autoconf pkg-config ninja cmake node nasm yasm
 
       - name: Set up Rust for iOS
         uses: dtolnay/rust-toolchain@stable
@@ -132,7 +132,7 @@ jobs:
           find "$WASI_SYSROOT" -maxdepth 3 -name string.h -print
           export WASM_CC="$WRAPPER_DIR/wasm-clang"
           export WASM_CXX="$WRAPPER_DIR/wasm-clang++"
-          export WASM_LD="$(command -v wasm-ld || find /opt/homebrew -path '*/bin/wasm-ld' -type f | head -n 1)"
+          export WASM_LD="$(command -v wasm-ld || find /opt/homebrew/opt/lld /opt/homebrew/opt/llvm /opt/homebrew -path '*/bin/wasm-ld' -type f | head -n 1)"
           test -n "$WASM_LD"
           test -x "$WASM_LD"
           echo "Using wasm-ld: $WASM_LD"
