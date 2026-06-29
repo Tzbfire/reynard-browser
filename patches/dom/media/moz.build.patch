@@ -1,8 +1,8 @@
 diff --git a/dom/media/moz.build b/dom/media/moz.build
-index 354bba2e996f..8dcef4c251b3 100644
+index 354bba2e996f..9ad9cfa24507 100644
 --- a/dom/media/moz.build
 +++ b/dom/media/moz.build
-@@ -25,6 +25,9 @@ component_av = ("Core", "WebRTC: Audio/Video")
+@@ -25,13 +25,15 @@ component_av = ("Core", "WebRTC: Audio/Video")
  with Files("GetUserMedia*"):
      BUG_COMPONENT = component_av
  
@@ -12,7 +12,14 @@ index 354bba2e996f..8dcef4c251b3 100644
  DIRS += [
      "autoplay",
      "doctor",
-@@ -60,9 +63,6 @@ DIRS += [
+     "driftcontrol",
+     "eme",
+     "encoder",
+-    "fake-cdm",
+     "flac",
+     "gmp",
+     "gmp-plugin-openh264",
+@@ -60,9 +62,6 @@ DIRS += [
  if CONFIG["MOZ_ANDROID_HLS_SUPPORT"]:
      DIRS += ["hls"]
  
