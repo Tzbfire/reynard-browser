@@ -66,7 +66,6 @@ jobs:
 
       - name: Build Gecko engine
         env:
-          PATH: /opt/homebrew/opt/llvm/bin:${{ env.PATH }}
           CC: /opt/homebrew/opt/llvm/bin/clang
           CXX: /opt/homebrew/opt/llvm/bin/clang++
           LD: /opt/homebrew/opt/llvm/bin/ld64.lld
@@ -78,10 +77,10 @@ jobs:
           export CC="/opt/homebrew/opt/llvm/bin/clang"
           export CXX="/opt/homebrew/opt/llvm/bin/clang++"
           export LD="/opt/homebrew/opt/llvm/bin/ld64.lld"
-          which clang
-          which clang++
-          which ld64.lld || true
-          which ld.lld || true
+          command -v clang
+          command -v clang++
+          command -v ld64.lld || true
+          command -v ld.lld || true
           clang --version
           ld64.lld --version || true
           "$CC" --target=aarch64-apple-ios -fuse-ld=lld -Wl,--version || true
