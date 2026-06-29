@@ -16,7 +16,13 @@ jobs:
       - name: Select Xcode 26
         run: |
           set -euxo pipefail
-          XCODE_PATH="$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -n 1)"
+          # Prefer a stable Xcode 26 toolchain. The newest runner image can also
+          # include Release Candidate builds whose linker output may confuse
+          # Gecko's configure checks.
+          XCODE_PATH="$(ls -d /Applications/Xcode_26*.app 2>/dev/null | grep -v 'Release_Candidate' | sort -V | tail -n 1)"
+          if [ -z "$XCODE_PATH" ]; then
+            XCODE_PATH="$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -n 1)"
+          fi
           test -n "$XCODE_PATH"
           sudo xcode-select -s "$XCODE_PATH/Contents/Developer"
           echo "Selected $XCODE_PATH"
