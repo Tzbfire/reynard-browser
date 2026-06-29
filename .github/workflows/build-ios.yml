@@ -70,9 +70,26 @@ jobs:
       - name: Build Gecko engine
         run: |
           set -euxo pipefail
+          WRAPPER_DIR="$RUNNER_TEMP/reynard-clang-wrapper"
+          mkdir -p "$WRAPPER_DIR"
+          cat > "$WRAPPER_DIR/clang" <<'EOF'
+          #!/bin/sh
+          for arg in "$@"; do
+            if [ "$arg" = "-Wl,--version" ]; then
+              echo "Logging ld64 options" >&2
+              exit 1
+            fi
+          done
+          exec /usr/bin/clang "$@"
+          EOF
+          chmod +x "$WRAPPER_DIR/clang"
+          ln -sf "$WRAPPER_DIR/clang" "$WRAPPER_DIR/cc"
+          ln -sf "$WRAPPER_DIR/clang" "$WRAPPER_DIR/clang++"
+          ln -sf "$WRAPPER_DIR/clang" "$WRAPPER_DIR/c++"
+          export PATH="$WRAPPER_DIR:$PATH"
           command -v clang
           command -v ld
-          clang --version
+          clang --version || true
           ld -v || true
           tools/development/build-gecko.sh
 
