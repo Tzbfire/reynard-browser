@@ -73,20 +73,31 @@ jobs:
           WRAPPER_DIR="$RUNNER_TEMP/reynard-clang-wrapper"
           mkdir -p "$WRAPPER_DIR"
           cat > "$WRAPPER_DIR/clang" <<'EOF'
-          #!/bin/sh
-          for arg in "$@"; do
-            if [ "$arg" = "-Wl,--version" ]; then
-              echo "Logging ld64 options" >&2
-              exit 1
-            fi
-          done
-          exec /usr/bin/clang "$@"
+          #!/usr/bin/env python3
+          import os
+          import subprocess
+          import sys
+
+          args = []
+          for arg in sys.argv[1:]:
+              if arg == "-Wl,--version":
+                  print("Logging ld64 options", file=sys.stderr)
+                  sys.exit(1)
+              if arg == "-fuse-ld=lld":
+                  arg = "-fuse-ld=ld"
+              args.append(arg)
+
+          os.execv("/usr/bin/clang", ["/usr/bin/clang", *args])
           EOF
           chmod +x "$WRAPPER_DIR/clang"
           ln -sf "$WRAPPER_DIR/clang" "$WRAPPER_DIR/cc"
           ln -sf "$WRAPPER_DIR/clang" "$WRAPPER_DIR/clang++"
           ln -sf "$WRAPPER_DIR/clang" "$WRAPPER_DIR/c++"
           export PATH="$WRAPPER_DIR:$PATH"
+          export CC="$WRAPPER_DIR/clang"
+          export CXX="$WRAPPER_DIR/clang++"
+          export HOST_CC="$WRAPPER_DIR/clang"
+          export HOST_CXX="$WRAPPER_DIR/clang++"
           command -v clang
           command -v ld
           clang --version || true
