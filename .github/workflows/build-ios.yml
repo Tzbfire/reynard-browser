@@ -75,8 +75,10 @@ jobs:
           cat > "$WRAPPER_DIR/clang" <<'EOF'
           #!/usr/bin/env python3
           import os
-          import subprocess
           import sys
+
+          invoked = os.path.basename(sys.argv[0])
+          real = "/usr/bin/clang++" if "++" in invoked or invoked == "c++" else "/usr/bin/clang"
 
           args = []
           for arg in sys.argv[1:]:
@@ -87,7 +89,7 @@ jobs:
                   arg = "-fuse-ld=ld"
               args.append(arg)
 
-          os.execv("/usr/bin/clang", ["/usr/bin/clang", *args])
+          os.execv(real, [real, *args])
           EOF
           chmod +x "$WRAPPER_DIR/clang"
           ln -sf "$WRAPPER_DIR/clang" "$WRAPPER_DIR/cc"
@@ -98,6 +100,8 @@ jobs:
           import os
           import sys
 
+          invoked = os.path.basename(sys.argv[0])
+          real = "/opt/homebrew/opt/llvm/bin/clang++" if "++" in invoked or invoked == "c++" else "/opt/homebrew/opt/llvm/bin/clang"
           sysroot = os.environ["WASI_SYSROOT"]
           include_dir = os.path.join(sysroot, "include", "wasm32-wasi")
           args = sys.argv[1:]
@@ -108,7 +112,7 @@ jobs:
           if not any(arg.startswith("-fuse-ld") for arg in args):
               args = [f"-fuse-ld={os.environ['WASM_LD']}", *args]
 
-          os.execv("/opt/homebrew/opt/llvm/bin/clang", ["/opt/homebrew/opt/llvm/bin/clang", *args])
+          os.execv(real, [real, *args])
           EOF
           chmod +x "$WRAPPER_DIR/wasm-clang"
           ln -sf "$WRAPPER_DIR/wasm-clang" "$WRAPPER_DIR/wasm-clang++"
